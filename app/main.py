@@ -1,27 +1,57 @@
+from flask import Flask, request, jsonify
 from logging_config import configure_logging
 from services.pipeline import AuditPipeline
 
+configure_logging()
 
-def main():
+app = Flask(__name__)
 
-    configure_logging()
+pipeline = AuditPipeline()
 
-    url = input(
-        "Enter website URL: "
-    ).strip()
 
-    pipeline = AuditPipeline()
+@app.route("/", methods=["GET"])
+def index():
+    return jsonify({
+        "service": "GEO Auditor",
+        "endpoints": [
+            "/audit",
+            "/health"
+        ]
+    })
 
-    result = pipeline.run(url)
 
-    print("\nAudit completed successfully!\n")
+@app.route("/audit", methods=["POST"])
+def audit():
+    data = request.get_json(silent=True) or {}
 
-    print(f"Report saved to: {result['report']}")
+    url = data.get("url", "").strip()
 
-    print(
-        f"GEO Score: {result['scores'].geo:.2f}/100"
-    )
+    if not url:
+        return jsonify({
+            "error": "Missing 'url' in request body."
+        }), 400
+
+    try:
+        result = pipeline.run(url)
+
+        return jsonify({
+            "message": "Audit completed successfully.",
+            "report": result["report"],
+            "geo_score": result["scores"].geo,
+        })
+
+    except Exception as e:
+        return jsonify({
+            "error": str(e)
+        }), 500
+
+
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({
+        "status": "healthy"
+    })
 
 
 if __name__ == "__main__":
-    main()
+    app.run(debug=True, port=5000, host="0.0.0.0")
