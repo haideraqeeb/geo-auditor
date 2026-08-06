@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 # --------------------------------------------------------------------------- #
 
 DEFAULT_MAX_DEPTH = 2
-DEFAULT_MAX_PAGES = 40
+DEFAULT_MAX_PAGES = 20
 DEFAULT_TIMEOUT_SECONDS = 10
 DEFAULT_USER_AGENT = "GEOAuditorBot/0.1 (+https://example.com/bot)"
 
@@ -223,6 +223,12 @@ class Crawler:
     # ------------------------------------------------------------------ #
 
     def crawl(self) -> CrawlResult:
+        logger.info(
+            "Starting crawl for %s with max_depth=%d max_pages=%d",
+            self.root_url,
+            self.max_depth,
+            self.max_pages,
+        )
         result = CrawlResult(root_url=self.root_url, domain=self.root_domain)
 
         self._queue.append(_QueueItem(url=self.root_url, depth=0))
@@ -241,6 +247,12 @@ class Crawler:
             if page is None:
                 result.skipped.append(
                     SkippedURL(url=item.url, reason=skip_reason or "unknown", depth=item.depth)
+                )
+                logger.info(
+                    "Skipped URL %s at depth %d: %s",
+                    item.url,
+                    item.depth,
+                    skip_reason,
                 )
                 continue
 

@@ -91,6 +91,7 @@ class ParsedPage:
 
 def parse_page(html: str, url: str) -> ParsedPage:
     """Parse a single page's raw HTML into a ParsedPage."""
+    logger.info("Parsing page %s", url)
     if not html or not html.strip():
         return ParsedPage(url=url, title=_title_from_url(url), language=None, content="")
 

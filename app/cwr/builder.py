@@ -71,6 +71,11 @@ def build_cwr(
     rather than failing the whole build -- a few bad pages shouldn't sink
     the audit.
     """
+    logger.info(
+        "Building CWR from crawl result: %d pages fetched, %d skipped",
+        len(crawl_result.pages),
+        len(crawl_result.skipped),
+    )
     session = session or _new_session()
 
     website = WebsiteInfo(url=crawl_result.root_url, domain=crawl_result.domain)
@@ -83,7 +88,7 @@ def build_cwr(
     for page in crawl_result.pages:
         try:
             parsed = parse_page(page.html, page.url)
-            content.append(PageContent(url=parsed.url, title=parsed.title, content=parsed.content))
+            content.append(PageContent(url=parsed.url, title=parsed.title, content=parsed.content, html=page.html))
         except Exception as exc:  # noqa: BLE001 - one bad page shouldn't kill the build
             logger.warning("parser failed for %s: %s", page.url, exc)
 
@@ -103,6 +108,13 @@ def build_cwr(
     )
 
     crawl_resources = _build_crawl_resources(crawl_result.root_url, session, resource_timeout)
+    logger.info(
+        "CWR assembled: content=%d metadata=%d structured_data=%d temporal=%d",
+        len(content),
+        len(metadata),
+        len(structured_data),
+        len(temporal),
+    )
 
     return CanonicalWebsiteRepresentation(
         website=website,
@@ -178,6 +190,7 @@ def _new_session() -> requests.Session:
 def _build_crawl_resources(root_url: str, session: requests.Session, timeout: int) -> CrawlResources:
     parsed = urlparse(root_url)
     base = f"{parsed.scheme}://{parsed.netloc}"
+    logger.info("Fetching site-level crawl resources for %s", base)
 
     robots_txt = _fetch_robots_txt(base, session, timeout)
     sitemap = _fetch_sitemap(base, robots_txt, session, timeout)
@@ -187,6 +200,7 @@ def _build_crawl_resources(root_url: str, session: requests.Session, timeout: in
 
 
 def _fetch_robots_txt(base: str, session: requests.Session, timeout: int) -> RobotsTxt:
+    logger.info("Fetching robots.txt from %s", urljoin(base, "/robots.txt"))
     text = _fetch_text_resource(urljoin(base, "/robots.txt"), session, timeout, expect_plain_text=True)
     if text is None:
         return RobotsTxt(exists=False, content=None)
@@ -196,6 +210,7 @@ def _fetch_robots_txt(base: str, session: requests.Session, timeout: int) -> Rob
 def _fetch_llms_txt(base: str, session: requests.Session, timeout: int) -> LLMsTxt:
     # Presence is worth a small score bump per the rubric; we don't do any
     # deep parsing of llms.txt content here, just store what's there.
+    logger.info("Fetching llms.txt from %s", urljoin(base, "/llms.txt"))
     text = _fetch_text_resource(urljoin(base, "/llms.txt"), session, timeout, expect_plain_text=True)
     if text is None:
         return LLMsTxt(exists=False, content=None)
@@ -204,6 +219,7 @@ def _fetch_llms_txt(base: str, session: requests.Session, timeout: int) -> LLMsT
 
 def _fetch_sitemap(base: str, robots_txt: RobotsTxt, session: requests.Session, timeout: int) -> Sitemap:
     sitemap_url = _sitemap_url_from_robots(robots_txt.content) or urljoin(base, "/sitemap.xml")
+    logger.info("Fetching sitemap from %s", sitemap_url)
 
     urls = _collect_sitemap_urls(sitemap_url, session, timeout, seen_sitemaps=set())
     if not urls:

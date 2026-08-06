@@ -89,6 +89,7 @@ def extract_page_signals(
     headers: Optional[Dict[str, str]] = None,
 ) -> PageSignals:
     """Run all three extractors for one page in a single pass."""
+    logger.info("Extracting page signals for %s", url)
     if not html or not html.strip():
         return PageSignals(
             metadata=MetaTags(url=url),
@@ -223,6 +224,7 @@ def extract_all(crawled_pages: Iterable) -> Dict[str, List[dict]]:
         except Exception as exc:  # pragma: no cover - defensive, one bad page shouldn't kill the batch
             logger.warning("Failed to extract signals for %s: %s", page.url, exc)
             continue
+        logger.debug("Extracted metadata/structured/temporal signals for %s", page.url)
 
         metadata_list.append(signals.metadata.to_cwr_entry())
         structured_data_list.append(signals.structured_data.to_cwr_entry())

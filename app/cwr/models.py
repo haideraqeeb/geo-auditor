@@ -15,6 +15,7 @@ class PageContent(BaseModel):
     title: str
 
     content: str
+    html: Optional[str] = None
 
 
 class LinkCollection(BaseModel):
