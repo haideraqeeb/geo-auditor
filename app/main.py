@@ -1,10 +1,15 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
+
 from logging_config import configure_logging
 from services.pipeline import AuditPipeline
 
 configure_logging()
 
 app = Flask(__name__)
+
+# Allow requests from your frontend
+CORS(app)
 
 pipeline = AuditPipeline()
 
@@ -15,8 +20,8 @@ def index():
         "service": "GEO Auditor",
         "endpoints": [
             "/audit",
-            "/health"
-        ]
+            "/health",
+        ],
     })
 
 
@@ -28,7 +33,7 @@ def audit():
 
     if not url:
         return jsonify({
-            "error": "Missing 'url' in request body."
+            "error": "Missing 'url' in request body.",
         }), 400
 
     try:
@@ -36,22 +41,26 @@ def audit():
 
         return jsonify({
             "message": "Audit completed successfully.",
-            "report": result["report"],
             "geo_score": result["scores"].geo,
+            "report": result["report"],
         })
 
     except Exception as e:
         return jsonify({
-            "error": str(e)
+            "error": str(e),
         }), 500
 
 
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({
-        "status": "healthy"
+        "status": "healthy",
     })
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000, host="0.0.0.0")
+    app.run(
+        debug=True,
+        host="0.0.0.0",
+        port=5000,
+    )

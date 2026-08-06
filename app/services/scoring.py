@@ -1,5 +1,5 @@
 import logging
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
 from models import EvaluatorOutput
 
@@ -25,6 +25,9 @@ class ScoreBreakdown:
     content: float
     technical: float
     geo: float
+
+    def model_dump(self) -> dict:
+        return asdict(self)
 
 
 class ScoringService:

@@ -20,6 +20,8 @@ from services.llm import LLMService
 from services.report import ReportService
 from services.scoring import ScoringService
 
+logger = logging.getLogger(__name__)
+
 
 class AuditPipeline:
     """
@@ -45,7 +47,7 @@ class AuditPipeline:
         url: str,
         *,
         max_depth: int = 2,
-        max_pages: int = 20,
+        max_pages: int = 40,
     ):
 
         logger.info(
@@ -95,7 +97,11 @@ class AuditPipeline:
                 name = future_to_name[future]
                 try:
                     results[name] = future.result()
-                    logger.info("Evaluator %s completed: score=%.2f", name, results[name].score)
+                    logger.info(
+                        "Evaluator %s completed: score=%.2f",
+                        name,
+                        results[name].score,
+                    )
                 except Exception as exc:
                     logger.error("Evaluator %s failed: %s", name, exc)
                     raise
@@ -112,17 +118,18 @@ class AuditPipeline:
         )
 
         # Generate report
-        report_path = ReportService.generate(
+        report = ReportService.generate(
             website=url,
             scores=scores,
             evaluators=results,
         )
-        logger.info("Report generated at %s", report_path)
+
+        logger.info("Report generated at %s", report["html_path"])
 
         return {
             "crawl_result": crawl_result,
             "cwr": cwr,
             "scores": scores,
             "evaluations": results,
-            "report": report_path,
+            "report": report,
         }

@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 # --------------------------------------------------------------------------- #
 
 DEFAULT_MAX_DEPTH = 2
-DEFAULT_MAX_PAGES = 20
+DEFAULT_MAX_PAGES = 40
 DEFAULT_TIMEOUT_SECONDS = 10
 DEFAULT_USER_AGENT = "GEOAuditorBot/0.1 (+https://example.com/bot)"
 

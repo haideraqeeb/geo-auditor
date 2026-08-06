@@ -1,17 +1,66 @@
 import logging
+import math
 from datetime import datetime
 from pathlib import Path
 
-from services.scoring import ScoreBreakdown
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from pydantic import BaseModel
+
 from models import EvaluatorOutput
+from services.llm import LLMService
+from services.scoring import ScoreBreakdown
 
 logger = logging.getLogger(__name__)
 
+TEMPLATE_DIR = Path(__file__).parent / "templates"
+
+
+class Evidence(BaseModel):
+    location: str
+    observed: str
+    note: str
+
+
+class Fix(BaseModel):
+    steps: str
+    copy_paste: str | None = None
+
+
+class ReportFinding(BaseModel):
+    title: str
+    source_category: str
+    severity: str
+    why_it_matters: str
+    evidence: list[Evidence]
+    fix: Fix
+    priority_rank: int
+
+
+class LLMReportPayload(BaseModel):
+    executive_summary: str
+    findings: list[ReportFinding]
+
+
+class Report(BaseModel):
+    website: str
+    generated_at: str
+    scores: ScoreBreakdown
+    executive_summary: str
+    findings: list[ReportFinding]
+
 
 class ReportService:
-    """
-    Generates a human-readable audit report.
-    """
+    _llm = LLMService()
+
+    _jinja_env = Environment(
+        loader=FileSystemLoader(str(TEMPLATE_DIR)),
+        autoescape=select_autoescape(["html", "jinja"]),
+    )
+    _jinja_env.globals.update(
+        cos=math.cos,
+        sin=math.sin,
+        pi=math.pi,
+    )
 
     @staticmethod
     def generate(
@@ -20,147 +69,70 @@ class ReportService:
         scores: ScoreBreakdown,
         evaluators: dict[str, EvaluatorOutput],
         output_dir: str = "reports",
-    ) -> Path:
+        template_name: str = "report.html.jinja",
+    ) -> dict:
+        payload = ReportService._synthesize(scores, evaluators)
+
+        report = Report(
+            website=website,
+            generated_at=datetime.now().strftime("%B %-d, %Y"),
+            scores=scores,
+            executive_summary=payload.executive_summary,
+            findings=payload.findings,
+        )
 
         output_dir = Path(output_dir)
-        output_dir.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
-
-        timestamp = datetime.now().strftime(
-            "%Y%m%d_%H%M%S"
-        )
+        output_dir.mkdir(parents=True, exist_ok=True)
 
         filename = (
             website.replace("https://", "")
             .replace("http://", "")
             .replace("/", "_")
         )
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        base = f"{filename}_{timestamp}"
 
-        report_path = (
-            output_dir /
-            f"{filename}_{timestamp}.txt"
-        )
-
-        lines = []
-
-        lines.append("=" * 80)
-        lines.append("GEO AUDIT REPORT")
-        lines.append("=" * 80)
-        lines.append("")
-
-        lines.append(f"Website : {website}")
-        lines.append(
-            f"Generated : {datetime.now()}"
-        )
-        lines.append("")
-
-        lines.append("-" * 80)
-        lines.append("OVERALL SCORE")
-        lines.append("-" * 80)
-
-        lines.append(
-            f"GEO Score      : {scores.geo:.2f}/100"
-        )
-        lines.append(
-            f"Trust          : {scores.trust:.2f}/47.50"
-        )
-        lines.append(
-            f"Content        : {scores.content:.2f}/42.50"
-        )
-        lines.append(
-            f"Technical      : {scores.technical:.2f}/10.00"
-        )
-
-        lines.append("")
-
-        for name, result in evaluators.items():
-            if name == "technical":
-                lines.append("=" * 80)
-                lines.append("TECHNICAL FINDINGS")
-                lines.append("=" * 80)
-                lines.append("")
-                lines.append("Summary")
-                lines.append(result.summary)
-                lines.append("")
-            else:
-                lines.append("=" * 80)
-                lines.append(name.upper())
-                lines.append("=" * 80)
-
-                lines.append(
-                    f"Score      : {result.score:.2f}"
-                )
-                confidence_text = (
-                    "N/A"
-                    if result.confidence is None
-                    else f"{result.confidence:.2f}"
-                )
-                lines.append(
-                    f"Confidence : {confidence_text}"
-                )
-
-                lines.append("")
-                lines.append("Summary")
-                lines.append(result.summary)
-                lines.append("")
-
-            if not result.findings:
-
-                lines.append(
-                    "No findings."
-                )
-
-            else:
-
-                lines.append("Findings")
-
-                for idx, finding in enumerate(
-                    result.findings,
-                    start=1,
-                ):
-
-                    lines.append("")
-                    lines.append(
-                        f"{idx}. {finding.title}"
-                    )
-
-                    lines.append(
-                        f"Severity : {finding.severity.value}"
-                    )
-
-                    lines.append(
-                        f"Description : {finding.description}"
-                    )
-
-                    if finding.recommendation:
-
-                        lines.append(
-                            f"Recommendation : {finding.recommendation}"
-                        )
-
-                    if finding.evidence:
-
-                        lines.append(
-                            "Evidence:"
-                        )
-
-                        for evidence in finding.evidence:
-
-                            lines.append(
-                                f"  - [{evidence.type.value}] {evidence.value}"
-                            )
-
-                            lines.append(
-                                f"    {evidence.explanation}"
-                            )
-
-            lines.append("")
-
-        report_path.write_text(
-            "\n".join(lines),
+        # Save report JSON
+        json_path = output_dir / f"{base}.json"
+        json_path.write_text(
+            report.model_dump_json(indent=2, ensure_ascii=False),
             encoding="utf-8",
         )
 
-        return report_path
+        # Render HTML
+        template = ReportService._jinja_env.get_template(template_name)
+        html = template.render(**report.model_dump())
+
+        # Save HTML
+        html_path = output_dir / f"{base}.html"
+        html_path.write_text(
+            html,
+            encoding="utf-8",
+        )
+
+        logger.info("Report written to %s (data: %s)", html_path, json_path)
+
+        return {
+            "html": html,
+            "html_path": str(html_path),
+            "json_path": str(json_path),
+        }
+
+    @staticmethod
+    def _synthesize(
+        scores: ScoreBreakdown,
+        evaluators: dict[str, EvaluatorOutput],
+    ) -> LLMReportPayload:
+        payload_in = {
+            "scores": scores.model_dump(),
+            "evaluators": {
+                name: e.model_dump()
+                for name, e in evaluators.items()
+            },
+        }
+
+        return ReportService._llm.evaluate(
+            prompt_name="report",
+            input_data=payload_in,
+            response_model=LLMReportPayload,
+        )
