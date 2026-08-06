@@ -16,6 +16,78 @@ The framework is designed around two principles:
 
 ---
 
+# Getting Started
+
+The project consists of two repositories:
+
+- **Backend (this repository)** – GEO crawling, evaluation, scoring, and report generation.
+- **Frontend** – User interface for submitting websites and viewing audit reports.
+
+## Backend Setup
+
+### 1. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Create environment variables
+
+Copy the example environment file.
+
+```bash
+cp .env.example .env
+```
+
+Update the values as required.
+
+### 3. Run the backend
+
+```bash
+python app/main.py
+```
+
+The backend will start locally and expose the GEO audit API.
+
+---
+
+## Frontend Setup
+
+Frontend repository:
+
+**https://github.com/haideraqeeb/geo-audit-frontend**
+
+### 1. Clone the frontend repository
+
+```bash
+git clone https://github.com/haideraqeeb/geo-audit-frontend.git
+cd geo-audit-frontend
+```
+
+### 2. Create environment variables
+
+```bash
+cp .env.example .env
+```
+
+Configure the backend API URL if necessary.
+
+### 3. Install dependencies
+
+```bash
+npm install
+```
+
+### 4. Start the development server
+
+```bash
+npm run dev
+```
+
+The frontend will connect to the locally running backend and provide the GEO audit interface.
+
+---
+
 # Architecture
 
 <p align="center">
