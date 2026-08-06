@@ -1,4 +1,5 @@
 import logging
+from collections import Counter
 from datetime import datetime
 import time
 from models import (
@@ -198,6 +199,43 @@ class TechnicalEvaluator(BaseEvaluator):
                     )
                 )
 
+        structured_data_entries = getattr(cwr, "structured_data", [])
+        if structured_data_entries:
+            schema_counter = Counter()
+            pages_with_schema = 0
+
+            for page in structured_data_entries:
+                if not page.schema:
+                    continue
+
+                pages_with_schema += 1
+
+                for item in page.schema:
+                    schema_type = item.get("@type")
+
+                    if isinstance(schema_type, list):
+                        schema_counter.update(schema_type)
+                    elif isinstance(schema_type, str):
+                        schema_counter[schema_type] += 1
+
+            if pages_with_schema:
+                coverage = pages_with_schema / len(structured_data_entries)
+                required_schemas = {
+                    "Organization",
+                    "WebSite",
+                    "Article",
+                    "BreadcrumbList",
+                }
+                required_count = sum(
+                    1 for schema in required_schemas if schema in schema_counter
+                )
+                schema_component = (
+                    (coverage * 0.25) +
+                    ((required_count / len(required_schemas)) * 0.25)
+                )
+                score += min(schema_component, 0.5)
+
+        score = min(score, max_score)
         score = round(score, 2)
 
         exec_ms = int((time.time() - start_time) * 1000)

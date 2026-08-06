@@ -26,14 +26,13 @@ class ReadabilityEvaluator(BaseEvaluator):
         pages = []
 
         for page in cwr.content:
+            html = page.html if getattr(page, "html", None) else page.content
 
             pages.append(
                 {
                     "url": page.url,
                     "title": page.title,
-                    "document": extract_document_structure(
-                        page.content
-                    ),
+                    "document": extract_document_structure(html),
                 }
             )
 
