@@ -68,7 +68,6 @@ class ReportService:
         website: str,
         scores: ScoreBreakdown,
         evaluators: dict[str, EvaluatorOutput],
-        output_dir: str = "reports",
         template_name: str = "report.html.jinja",
     ) -> dict:
         payload = ReportService._synthesize(scores, evaluators)
@@ -81,41 +80,14 @@ class ReportService:
             findings=payload.findings,
         )
 
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        filename = (
-            website.replace("https://", "")
-            .replace("http://", "")
-            .replace("/", "_")
-        )
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        base = f"{filename}_{timestamp}"
-
-        # Save report JSON
-        json_path = output_dir / f"{base}.json"
-        json_path.write_text(
-            report.model_dump_json(indent=2, ensure_ascii=False),
-            encoding="utf-8",
-        )
-
-        # Render HTML
         template = ReportService._jinja_env.get_template(template_name)
         html = template.render(**report.model_dump())
 
-        # Save HTML
-        html_path = output_dir / f"{base}.html"
-        html_path.write_text(
-            html,
-            encoding="utf-8",
-        )
-
-        logger.info("Report written to %s (data: %s)", html_path, json_path)
+        logger.info("Report generated successfully.")
 
         return {
             "html": html,
-            "html_path": str(html_path),
-            "json_path": str(json_path),
+            "json": report.model_dump(),
         }
 
     @staticmethod

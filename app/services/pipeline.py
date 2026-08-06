@@ -124,7 +124,7 @@ class AuditPipeline:
             evaluators=results,
         )
 
-        logger.info("Report generated at %s", report["html_path"])
+        logger.info("Report generated")
 
         return {
             "crawl_result": crawl_result,
