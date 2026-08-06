@@ -1,3 +1,5 @@
+import re
+
 from bs4 import BeautifulSoup
 
 
@@ -114,5 +116,12 @@ def extract_document_structure(html: str) -> dict:
 
         if text:
             structure["quotes"].append(text)
+
+    if not any(structure.values()):
+        raw_text = soup.get_text("\n", strip=True)
+        for paragraph in re.split(r"\n{2,}", raw_text):
+            paragraph = paragraph.strip()
+            if paragraph:
+                structure["paragraphs"].append(paragraph)
 
     return structure
