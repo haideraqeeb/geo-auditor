@@ -47,7 +47,7 @@ class AuditPipeline:
         url: str,
         *,
         max_depth: int = 2,
-        max_pages: int = 40,
+        max_pages: int = 20,
     ):
 
         logger.info(
