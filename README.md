@@ -97,6 +97,82 @@ The frontend will connect to the locally running backend and provide the GEO aud
 
 ---
 
+## Design Decisions
+
+The goal of GEO Auditor is to provide a practical framework for evaluating websites for Generative Engine Optimization rather than building a production-scale crawler.
+
+### What was built
+
+- Website crawler with configurable crawl limits
+- Canonical Website Representation (CWR)
+- Deterministic technical analysis
+- LLM-based semantic evaluators
+- Weighted GEO scoring framework
+- Confidence estimation
+- Layered audit report generation
+- Interactive frontend for submitting audits and viewing reports
+
+### What was intentionally left out
+
+To keep the project focused and maintainable, several production features were intentionally omitted.
+
+- Distributed crawling infrastructure
+- Persistent storage for crawl history
+- Authentication and user accounts
+- Incremental recrawling
+- Report versioning
+- Background job queues
+- Multi-domain batch auditing
+- Caching across audit sessions
+
+These features improve scalability but do not contribute directly to demonstrating the GEO evaluation framework itself.
+
+---
+
+## Real vs Mocked
+
+### Real
+
+- Website crawling
+- HTML parsing
+- Metadata extraction
+- robots.txt parsing
+- Sitemap discovery
+- JSON-LD extraction
+- Internal and external link analysis
+- Canonical Website Representation generation
+- Deterministic GEO evaluation
+- LLM-based semantic evaluation
+- Weighted scoring
+- Confidence computation
+- Markdown report generation
+- Frontend and backend integration
+
+### Mocked
+
+- None.
+
+All evaluator outputs are generated from live website content using deterministic analysis or LLM reasoning. No scores or recommendations are hardcoded.
+
+---
+
+## Future Work
+
+With another week of development, the following improvements would be prioritized.
+
+- Larger-scale crawling with asynchronous workers
+- Incremental crawling and change detection
+- Historical GEO score tracking
+- Report comparison across multiple audits
+- Additional GEO evaluators (multimodal content, citation graph analysis, AI answer simulation)
+- Smarter prompt caching and evaluation reuse
+- Batch auditing for multiple websites
+- Dashboard with historical trends and analytics
+- Export formats such as PDF and JSON
+- User authentication and saved projects
+
+---
+
 # Research
 
 The framework is built around GEO techniques that consistently appear across GEO research and established Search Central guidance.
