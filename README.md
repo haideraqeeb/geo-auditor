@@ -196,19 +196,19 @@ The framework is built around GEO techniques that consistently appear across GEO
 
 ## Category Weights
 
-### Trust & Authority (40%)
+### Trust & Authority (47.5%)
 
 - Citation authority
 - Evidence-backed quantitative claims
 
-### Content Quality (35%)
+### Content Quality (42.5%)
 
 - Readability
 - Entity richness
 - Freshness
 - User intent coverage
 
-### Technical Discoverability (25%)
+### Technical Discoverability (10%)
 
 - Schema.org (JSON-LD)
 - Internal linking
@@ -216,6 +216,7 @@ The framework is built around GEO techniques that consistently appear across GEO
 - Meta tags
 - llms.txt
 
+These relevance values were chosen based on alot of research on different GEO papers.
 ---
 
 # System Design
@@ -304,7 +305,19 @@ Evaluator outputs are weighted according to research importance before being agg
 
 The framework also computes evaluator confidence, category confidence, and overall confidence.
 
-(Scoring equations from the design document should be included here.)
+<p align="center">
+  <img src="assets/eval.png" alt="Single Evaluator Score Formula" width="900">
+</p>
+<br>
+<p align="center">
+  <img src="assets/cat.png" alt="Category wise Score Formula" width="900">
+</p>
+<br>
+<p align="center">
+  <img src="assets/geo.png" alt="Final GEO Score Formula" width="900">
+</p>
+
+Here, the numbers 10, 15 and 7 come by the addition of intra class weights of the different types of GEO optimization where highest is 5, based on each of their importance
 
 ---
 
