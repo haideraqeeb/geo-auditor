@@ -44,7 +44,7 @@ class LLMService:
         messages = self._build_messages(prompt, input_data)
 
         # Per-call timeout (seconds). Use settings if available, else default to 30s.
-        request_timeout = getattr(settings, "OPENAI_REQUEST_TIMEOUT", 180)
+        request_timeout = getattr(settings, "OPENAI_REQUEST_TIMEOUT", 300)
 
         for attempt in range(self.max_retries):
             attempt_idx = attempt + 1

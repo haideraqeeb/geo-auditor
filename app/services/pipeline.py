@@ -10,7 +10,6 @@ from evaluators.readability import ReadabilityEvaluator
 from evaluators.entity import EntityEvaluator
 from evaluators.freshness import FreshnessEvaluator
 from evaluators.faq import FAQEvaluator
-from evaluators.schema import SchemaEvaluator
 from evaluators.technical import TechnicalEvaluator
 
 from models import EvaluatorOutput
@@ -38,7 +37,6 @@ class AuditPipeline:
             "entity": EntityEvaluator(self.llm),
             "freshness": FreshnessEvaluator(self.llm),
             "faq": FAQEvaluator(self.llm),
-            "schema": SchemaEvaluator(),
             "technical": TechnicalEvaluator(),
         }
 
@@ -110,7 +108,6 @@ class AuditPipeline:
             entity=results["entity"],
             freshness=results["freshness"],
             faq=results["faq"],
-            schema=results["schema"],
             technical=results["technical"],
         )
 

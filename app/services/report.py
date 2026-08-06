@@ -76,27 +76,35 @@ class ReportService:
         lines.append("")
 
         for name, result in evaluators.items():
+            if name == "technical":
+                lines.append("=" * 80)
+                lines.append("TECHNICAL FINDINGS")
+                lines.append("=" * 80)
+                lines.append("")
+                lines.append("Summary")
+                lines.append(result.summary)
+                lines.append("")
+            else:
+                lines.append("=" * 80)
+                lines.append(name.upper())
+                lines.append("=" * 80)
 
-            lines.append("=" * 80)
-            lines.append(name.upper())
-            lines.append("=" * 80)
+                lines.append(
+                    f"Score      : {result.score:.2f}"
+                )
+                confidence_text = (
+                    "N/A"
+                    if result.confidence is None
+                    else f"{result.confidence:.2f}"
+                )
+                lines.append(
+                    f"Confidence : {confidence_text}"
+                )
 
-            lines.append(
-                f"Score      : {result.score:.2f}"
-            )
-            confidence_text = (
-                "N/A"
-                if result.confidence is None
-                else f"{result.confidence:.2f}"
-            )
-            lines.append(
-                f"Confidence : {confidence_text}"
-            )
-
-            lines.append("")
-            lines.append("Summary")
-            lines.append(result.summary)
-            lines.append("")
+                lines.append("")
+                lines.append("Summary")
+                lines.append(result.summary)
+                lines.append("")
 
             if not result.findings:
 

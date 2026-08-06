@@ -8,7 +8,11 @@ logger = logging.getLogger(__name__)
 TRUST_WEIGHT = 47.5
 CONTENT_WEIGHT = 42.5
 TECHNICAL_WEIGHT = 10.0
-SCHEMA_TECHNICAL_WEIGHT = 0.5
+TRUST_COMPONENTS = 2
+CONTENT_COMPONENTS = 4
+TECHNICAL_COMPONENTS = 3
+TRUST_RELEVANCE_TOTAL = 10
+CONTENT_RELEVANCE_TOTAL = 15
 
 
 @dataclass
@@ -38,32 +42,27 @@ class ScoringService:
         entity: EvaluatorOutput,
         freshness: EvaluatorOutput,
         faq: EvaluatorOutput,
-        schema: EvaluatorOutput,
         technical: EvaluatorOutput,
     ) -> ScoreBreakdown:
 
         trust = (
             (
-                citation.score +
-                evidence.score
-            ) / 10
+                (citation.score / 5) * 5 +
+                (evidence.score / 5) * 5
+            ) / TRUST_RELEVANCE_TOTAL
         ) * TRUST_WEIGHT
 
         content = (
             (
-                readability.score +
-                entity.score +
-                freshness.score +
-                faq.score
-            ) / 15
+                (readability.score / 5) * 4 +
+                (entity.score / 5) * 4 +
+                (freshness.score / 5) * 4 +
+                (faq.score / 5) * 3
+            ) / CONTENT_RELEVANCE_TOTAL
         ) * CONTENT_WEIGHT
 
-        weighted_schema_score = schema.score * SCHEMA_TECHNICAL_WEIGHT
         technical_score = (
-            (
-                weighted_schema_score +
-                technical.score
-            ) / 5
+            technical.score / TECHNICAL_COMPONENTS
         ) * TECHNICAL_WEIGHT
 
         geo = (
