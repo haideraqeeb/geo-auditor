@@ -21,7 +21,7 @@ Do **not** evaluate:
 
 # Objective
 
-Determine whether factual information throughout the website is supported by trustworthy, authoritative, and relevant sources.
+Determine whether the website demonstrates good citation practices by supporting important factual information with trustworthy, authoritative, and relevant sources where appropriate.
 
 A citation should only receive credit if it:
 
@@ -93,9 +93,11 @@ Ignore
 
 ## Step 3 — Determine which claims require citations
 
-Some common knowledge does not require citations.
+Not every factual statement requires a citation.
 
-However, the following almost always require supporting evidence:
+Prioritize evaluating claims where supporting evidence would materially improve credibility.
+
+The following typically benefit from supporting evidence:
 
 - numerical claims
 - performance improvements
@@ -103,7 +105,11 @@ However, the following almost always require supporting evidence:
 - scientific statements
 - legal information
 - medical information
-- technical specifications
+- original research
+- technical benchmarks
+- comparisons involving measurable outcomes
+
+General educational explanations, widely accepted concepts, and common technical knowledge may not require citations.
 
 ---
 
@@ -121,7 +127,7 @@ Look for
 
 ## Step 5 — Evaluate citation authority
 
-Highest quality sources include
+Highest quality sources include, but are not limited to
 
 - government websites
 - official documentation
@@ -131,7 +137,7 @@ Highest quality sources include
 - original research
 - reputable industry reports
 
-Lower quality sources include
+Lower quality sources may include
 
 - blogs
 - opinion articles
@@ -143,9 +149,11 @@ Lower quality sources include
 
 ## Step 6 — Evaluate citation relevance
 
-Determine whether each citation actually supports the nearby claim.
+Determine whether each citation reasonably supports the nearby claim.
 
 Do not give credit simply because a hyperlink exists.
+
+When a citation supports a broader section rather than a single sentence, it may still receive partial credit if the relationship is clear.
 
 ---
 
@@ -161,6 +169,8 @@ Evidence should clearly identify
 - the claim or citation
 - why it supports the finding
 
+Avoid creating weaknesses solely because a citation is absent unless the unsupported claim would reasonably be expected to include one.
+
 ---
 
 ## Step 8 — Assign a score
@@ -173,46 +183,49 @@ Assign a score between **0 and 5** using the rubric below.
 
 ## Score 5
 
-- Nearly every factual claim is supported.
-- Citations are authoritative.
-- Citations directly support adjacent claims.
-- Source quality is consistently excellent.
+- The website consistently demonstrates strong citation practices.
+- Important factual or quantitative claims are generally supported.
+- Citations are authoritative and relevant.
+- Unsupported claims are minor and do not materially reduce trust.
 
 ---
 
 ## Score 4
 
-- Most factual claims are supported.
-- Minor unsupported claims.
-- Overall source quality is strong.
+- Citation practices are good overall.
+- Many important factual claims are supported.
+- Sources are generally authoritative.
+- Some important claims could benefit from additional citations.
 
 ---
 
 ## Score 3
 
-- Some factual claims are supported.
-- Several unsupported claims remain.
+- Citation practices are adequate.
+- Some important factual claims are supported.
 - Citation quality is mixed.
+- Additional citations would noticeably improve trustworthiness.
 
 ---
 
 ## Score 2
 
-- Few authoritative citations.
-- Many unsupported factual claims.
+- Citation practices are limited.
+- Only a small portion of important factual claims are supported.
+- Many claims that would benefit from citations lack supporting evidence.
 
 ---
 
 ## Score 1
 
-- Rare use of citations.
-- Most factual information is unsupported.
+- Very few authoritative citations are present.
+- Most important factual claims are unsupported.
 
 ---
 
 ## Score 0
 
-- No meaningful citations.
+- No meaningful citations are present anywhere on the website.
 
 ---
 
@@ -285,4 +298,5 @@ Populate other metadata fields when available.
 - Recommendations should be specific and actionable.
 - Prefer a few high-quality findings over many weak ones.
 - Be conservative when assigning perfect scores.
+- Do not penalize websites for omitting citations on common knowledge or straightforward explanatory content.
 - Return only the structured response matching the provided schema.
